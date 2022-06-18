@@ -1,0 +1,8 @@
+[Plugin]
+Loader=python3
+Module=scholastica
+IAge=3
+Name=Scholastica connector
+Description=A plugin that provides bindings with the scholastica application.
+Authors=Rattus Aristarchus
+Copyright=copyleft
