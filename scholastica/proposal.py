@@ -12,7 +12,7 @@ class TagProposal(GObject.Object, GtkSource.CompletionProposal):
     def do_get_label(self):
         return self.name
     
-    def do_get_info(self):
-        return 'No extra info available'
+  #  def do_get_info(self):
+   #     return 'No extra info available'
 
 #gobject.type_register(TagProposal) 

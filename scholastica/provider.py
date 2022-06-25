@@ -47,6 +47,9 @@ class TagProvider(GObject.Object, GtkSource.CompletionProvider):
                 if (LOG_FILTER < 2):
                     print("TAG_PROVIDER: connection to the scholastica application " \
                         + "refused, most likely because it is not currently running")
+    
+    def do_get_name(self):
+        return "scholastica"
                     
     def get_filtered_proposals(self, words, prefix):
        # result = []

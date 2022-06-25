@@ -15,17 +15,26 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
             print("MAIN: init")
             
         GObject.Object.__init__(self)
-        self.proxy = ServerProxy('http://localhost:9000', allow_none=True) 
-        #self.provider = TagProvider(self.proxy)
+        self.proxy = ServerProxy('http://localhost:9000', allow_none=True)
+        
+        #These are necessary to kill signals when cleaning up
+        self._providers = {}
+        self._doc_signals = {}
         
     def do_activate(self):          
         if (LOG_FILTER < 1):
             print("MAIN: do_activate")
             
-        self.window.connect('tab-added', self.on_tab_added)
+        self._tab_added_id = self.window.connect('tab-added', self.on_tab_added)
+        self._tab_removed_id = self.window.connect('tab-removed', self.on_tab_removed)
         return
     
-    def do_deactivate(self):
+    def do_deactivate(self):       
+        if (LOG_FILTER < 1):
+            print("MAIN: do_deactivate")
+        
+        self.window.disconnect(self._tab_added_id)
+        self.window.disconnect(self._tab_removed_id)
         pass
 
     def on_tab_added(self, window, tab, data=None):        
@@ -33,18 +42,28 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
             print("MAIN: on_tab_added")
         
         doc = tab.get_document()
-        doc.connect('saved', self.on_document_saved)
-        doc.connect('loaded', self.on_document_loaded)
-        
+        doc_saved = doc.connect('saved', self.on_document_saved)
+        doc_loaded = doc.connect('loaded', self.on_document_loaded)
+        self._doc_signals[tab] = [doc_saved, doc_loaded]
+
+        #The object that manages autocompletion
         provider = TagProvider(self.proxy, doc)
         tab.get_view().get_completion().add_provider(provider)
+        self._providers[tab] = provider
         return
 
     def on_tab_removed(self, window, tab, data=None):        
         if (LOG_FILTER < 1):
             print("MAIN: on_tab_removed")
-            
-  #      tab.get_view().get_completion().remove_provider(self.provider)
+
+        if tab in self._doc_signals:
+            doc = tab.get_document()
+            doc.disconnect(self._doc_signals[tab][0])
+            doc.disconnect(self._doc_signals[tab][1])
+        
+        if tab in self._providers:
+            provider = self._providers[tab]
+            tab.get_view().get_completion().remove_provider(provider)
 
     def on_document_loaded(self, document, data=None):
         return
@@ -53,6 +72,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
         if (LOG_FILTER < 1):
             print("MAIN: on_document_saved")
             
+        #Saving a document signals the main application that it can read the file
         try:
             path = util.document_path(document)
             returned_value = self.proxy.on_save(path)
@@ -60,19 +80,8 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
             if (LOG_FILTER < 2):
                 print("MAIN: connection to the scholastica application refused, " \
                       + "most likely because it is not currently running")
-#        tags = self.proxy.query_tags()
- #       for tag in tags:
-  #          print(tag)
         return
     
 
     def do_update_state(self):
         pass
-"""
-When cleaning up, remember to kill all your signal handlers. Given the above example, cleanup code would look something like this:
-
-l_id = doc.examplePyPluginHandlerId
-doc.disconnect(l_id)
-doc.examplePyPluginHandlerId = None
-"""
- 
