@@ -36,10 +36,13 @@ def get_line(piter):
 def enclosed_line(line):
     if len(line) == 0:
         return False
-    if line[0] == "(":
-        return True
-    else:
-        return False
+    for ch in line:
+        if ch == " ":
+            continue
+        if ch == "(" or ch == "[":
+            return True
+        else:
+            return False
     
 def document_path(document):
     location = document.get_file().get_location()
