@@ -59,4 +59,3 @@ class TagProvider(GObject.Object, GtkSource.CompletionProvider):
        #         result.append(word)
         proposals = [word for word in words if word.startswith(prefix) and word != prefix]
         return proposals
-    
