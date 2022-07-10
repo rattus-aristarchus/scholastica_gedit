@@ -122,14 +122,14 @@ class Listener(threading.Thread):
             logger.info("Messenger is exiting")
     
     def open_file(self, path, item):
-        logger.info(f"Listener: trying to open file {path} at {item}")
+        logger.info("Listener: trying to open file " + path + " at " + item)
         
         def open_file_main_thread():
             logger.info("Listener internal: trying to open file")
             
             try:
                 file = Gio.File.new_for_path(path)
-                logger.debug(f"Listener internal: file object created at {file.get_path()}")
+                logger.debug("Listener internal: file object created at " + file.get_path())
                 tab = self.window.get_tab_from_location(file)
                 
                 if tab == None:
@@ -155,8 +155,8 @@ class Listener(threading.Thread):
                 if search in text:
                     before = text[:text.find(search)]
                     line = before.count("\n")
-                    logger.debug(f"Listener internal: found search string in text; at line "+
-                                 f"{line}")
+                    logger.debug("Listener internal: found search string in text; " +\
+                                 "at line " + line)
                     #tab.get_document().goto_line_offset(line, 0)
                     iter = tab.get_document().get_iter_at_line(line)
                     tab.get_document().place_cursor(iter)
