@@ -1,1 +1,1 @@
-LOG_FILTER = 0
+LOG_FILTER = 3
