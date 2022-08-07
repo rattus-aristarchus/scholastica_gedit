@@ -12,25 +12,25 @@ class TagProvider(GObject.Object, GtkSource.CompletionProvider):
         self.proxy = proxy
         self.document = document
 
-    #TODO: check the performance of this thing with a large file of tags
-    #TODO: it might be useful to have the autocompletion look for previous instances of
-    #source truncating (e. g. surname of first author, first name of title etc., but
-    #i'll have to figure out a way to do it without traversing the whole document every
-    #time
+    # TODO: check the performance of this thing with a large file of tags
+    # TODO: it might be useful to have the autocompletion look for previous instances of
+    # source truncating (e. g. surname of first author, first name of title etc., but
+    # i'll have to figure out a way to do it without traversing the whole document every
+    # time
     def do_populate(self, context):        
         if LOG_FILTER < 1:
             print("TAG_PROVIDER: do_populate")
 
         line = util.get_line(context.get_iter()[1])
-        word = util.get_word(context.get_iter()[1])
-        if util.enclosed_line(line) and len(word) > 1:
+        phrase = util.get_phrase(context.get_iter()[1])
+        if util.enclosed_line(line) and len(phrase) > 1:
             if LOG_FILTER < 1:
                 print("TAG_PROVIDER: got an enclosed line, " + line)
             try:
                 sources = self.proxy.query_sources(util.document_path(self.document))
                 trunc_sources = [util.truncate_source(source) for source in sources]
                 tags = self.proxy.query_tags()
-                filtered = self.get_filtered_proposals(trunc_sources + tags, word)
+                filtered = self.get_filtered_proposals(trunc_sources + tags, phrase)
                 proposals = []
                 for name in filtered: 
                     proposals.append(TagProposal(name))
