@@ -50,6 +50,12 @@ def document_path(document):
     path = urlparse(uri).path
     if "%" in path:
         path = unquote(path)
+    # i've got no idea how or why but on windows the path
+    # sometimes starts with a slash
+    if path[0] == "/":
+        path = path[1:]
+        
+    print(path)
     return path
 
 #Return a short reference to a source from its full name

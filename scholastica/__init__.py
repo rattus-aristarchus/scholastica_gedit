@@ -6,9 +6,11 @@ from xmlrpc.client import ServerProxy
 from xmlrpc.server import SimpleXMLRPCServer
 
 from scholastica.provider import TagProvider
+import scholastica.conf as conf
 from scholastica.conf import LOG_FILTER
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename=conf.LOGS_FILE,
+                    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
@@ -84,7 +86,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
         
         self.update_file(document)
 
-    def on_document_saved(self, document, data=None):                
+    def on_document_saved(self, document, data=None):     
         logger.info("on_document_saved")
             
         #Saving a document signals the main application that it can read the file
