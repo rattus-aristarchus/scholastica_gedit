@@ -8,10 +8,12 @@ from xmlrpc.server import SimpleXMLRPCServer
 from scholastica.provider import TagProvider
 import scholastica.conf as conf
 from scholastica.conf import LOG_FILTER
+import scholastica.util as util
 
 logging.basicConfig(filename=conf.LOGS_FILE,
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
     __gtype_name__ = "ScholasticaPlugin"
@@ -23,7 +25,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
         
         GObject.Object.__init__(self)
                 
-        #These are necessary to kill signals when cleaning up
+        # These are necessary to kill signals when cleaning up
         self._providers = {}
         self._doc_signals = {}
         
@@ -63,7 +65,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
         doc_loaded = doc.connect('loaded', self.on_document_loaded)
         self._doc_signals[tab] = [doc_saved, doc_loaded]
 
-        #The object that manages autocompletion
+        # The object that manages autocompletion
         provider = TagProvider(self.proxy, doc)
         tab.get_view().get_completion().add_provider(provider)
         self._providers[tab] = provider
@@ -89,7 +91,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
     def on_document_saved(self, document, data=None):     
         logger.info("on_document_saved")
             
-        #Saving a document signals the main application that it can read the file
+        # Saving a document signals the main application that it can read the file
         self.update_file(document)    
 
     def do_update_state(self):
@@ -105,6 +107,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
             logger.warning("MAIN: connection to the scholastica application refused, " \
                            + "most likely because it is not currently running")
         return
+
 
 class Listener(threading.Thread):
     
@@ -134,7 +137,7 @@ class Listener(threading.Thread):
                 logger.debug("Listener internal: file object created at " + file.get_path())
                 tab = self.window.get_tab_from_location(file)
                 
-                if tab == None:
+                if tab is None:
                     tab = self.window.create_tab_from_location(location=file,
                                                                 encoding=None,
                                                                 line_pos=0,
