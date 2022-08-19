@@ -78,8 +78,6 @@ def document_path(document):
     # sometimes starts with a slash
     if path[0] == "/":
         path = path[1:]
-        
-    print(path)
     return path
 
 

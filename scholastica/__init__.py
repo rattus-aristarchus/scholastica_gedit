@@ -152,17 +152,17 @@ class Listener(threading.Thread):
                 end = tab.get_document().get_end_iter()
                 text = tab.get_document().get_text(start, end, True)
                 logger.debug("Listener internal: loaded tab with text: " + text[:100])
-                #This is a half-assed solution. What if the text in the tab is not saved yet
-                #and there is a change in the segment we're looking for? we can avoid some of
-                #those cases by looking for not the whole segment, but just the first 100
-                #symbols
+                # This is a half-assed solution. What if the text in the tab is not saved yet
+                # and there is a change in the segment we're looking for? we can avoid some of
+                # those cases by looking for not the whole segment, but just the first 100
+                # symbols
                 search = item[:100]
                 if search in text:
                     before = text[:text.find(search)]
                     line = before.count("\n")
                     logger.debug("Listener internal: found search string in text; " +\
                                  "at line " + line)
-                    #tab.get_document().goto_line_offset(line, 0)
+                    # tab.get_document().goto_line_offset(line, 0)
                     iter = tab.get_document().get_iter_at_line(line)
                     tab.get_document().place_cursor(iter)
                     tab.get_view().scroll_to_cursor()

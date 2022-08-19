@@ -11,3 +11,4 @@ if not os.path.exists(LOGS_DIR):
 now = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
 LOGS_FILE = os.path.join(LOGS_DIR, "log_" + now + ".txt")
 LOG_FILTER = 0
+
