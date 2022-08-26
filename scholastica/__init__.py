@@ -8,12 +8,10 @@ from xmlrpc.server import SimpleXMLRPCServer
 from scholastica.provider import TagProvider
 import scholastica.conf as conf
 from scholastica.conf import LOG_FILTER
-import scholastica.util as util
 
 logging.basicConfig(filename=conf.LOGS_FILE,
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
     __gtype_name__ = "ScholasticaPlugin"
@@ -25,37 +23,32 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
         
         GObject.Object.__init__(self)
                 
-        # These are necessary to kill signals when cleaning up
+        #These are necessary to kill signals when cleaning up
         self._providers = {}
         self._doc_signals = {}
         
     def do_activate(self):  
         logger.info("do_activate")
         
-        self.proxy = ServerProxy('http://localhost:9000', allow_none=True)
+        self.proxy = ServerProxy('http://localhost:9000', 
+                                 allow_none=True)
+                             #    headers=[("TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS", "1")])
         self.listener = Listener(self.window)
         self.listener.start()
         
         self._tab_added_id = self.window.connect('tab-added', self.on_tab_added)
         self._tab_removed_id = self.window.connect('tab-removed', self.on_tab_removed)
-        """
-        path = "/media/kryis/TOSHIBA EXT/записи/организатор записей/источник.txt"
-        file = Gio.File.new_for_path(path)
-        logger.info(f"do_activate: file object created at {file.get_path()}")
-        self.window.create_tab_from_location(location=file,
-                                             encoding=None,
-                                             line_pos=0,
-                                             column_pos=0,
-                                             create=False,
-                                             jump_to=True)
-        """
+
+        conf.start_profiling()
         
     def do_deactivate(self):       
         logger.info("do_deactivate")
         
         self.window.disconnect(self._tab_added_id)
         self.window.disconnect(self._tab_removed_id)
-        pass
+
+        conf.end_profiling()
+
 
     def on_tab_added(self, window, tab, data=None):        
         logger.info("on_tab_added")
@@ -91,7 +84,7 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
     def on_document_saved(self, document, data=None):     
         logger.info("on_document_saved")
             
-        # Saving a document signals the main application that it can read the file
+        #Saving a document signals the main application that it can read the file
         self.update_file(document)    
 
     def do_update_state(self):
@@ -107,7 +100,6 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
             logger.warning("MAIN: connection to the scholastica application refused, " \
                            + "most likely because it is not currently running")
         return
-
 
 class Listener(threading.Thread):
     
@@ -137,7 +129,7 @@ class Listener(threading.Thread):
                 logger.debug("Listener internal: file object created at " + file.get_path())
                 tab = self.window.get_tab_from_location(file)
                 
-                if tab is None:
+                if tab == None:
                     tab = self.window.create_tab_from_location(location=file,
                                                                 encoding=None,
                                                                 line_pos=0,
@@ -152,17 +144,17 @@ class Listener(threading.Thread):
                 end = tab.get_document().get_end_iter()
                 text = tab.get_document().get_text(start, end, True)
                 logger.debug("Listener internal: loaded tab with text: " + text[:100])
-                # This is a half-assed solution. What if the text in the tab is not saved yet
-                # and there is a change in the segment we're looking for? we can avoid some of
-                # those cases by looking for not the whole segment, but just the first 100
-                # symbols
+                #This is a half-assed solution. What if the text in the tab is not saved yet
+                #and there is a change in the segment we're looking for? we can avoid some of
+                #those cases by looking for not the whole segment, but just the first 100
+                #symbols
                 search = item[:100]
                 if search in text:
                     before = text[:text.find(search)]
                     line = before.count("\n")
                     logger.debug("Listener internal: found search string in text; " +\
                                  "at line " + line)
-                    # tab.get_document().goto_line_offset(line, 0)
+                    #tab.get_document().goto_line_offset(line, 0)
                     iter = tab.get_document().get_iter_at_line(line)
                     tab.get_document().place_cursor(iter)
                     tab.get_view().scroll_to_cursor()
@@ -173,3 +165,4 @@ class Listener(threading.Thread):
                 logger.error(str(e))
 
         GLib.idle_add(open_file_main_thread)
+        return "done beatch"

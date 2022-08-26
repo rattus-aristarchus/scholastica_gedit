@@ -1,28 +1,6 @@
 from urllib.parse import unquote
 from urllib.parse import urlparse
-
-
-def get_phrase(piter):
-    a = piter.copy()
-    b = piter.copy()
-
-    while True:
-        if a.starts_line():
-            break
-
-        a.backward_char()
-        ch = a.get_char()
-
-        if not (ch.isalnum() or ch in "_:.-><\"'$%^&?*=+" or ch.isspace()):
-            a.forward_char()
-            break
-
-    word = a.get_visible_text(b)
-    if word[0].isspace():
-        word = word[1:]
-    return word
-
-
+ 
 def get_word(piter):
     a = piter.copy()
     b = piter.copy()
@@ -34,13 +12,13 @@ def get_word(piter):
         a.backward_char()
         ch = a.get_char()
         
-        if not (ch.isalnum() or ch in "_:.,-><\"';$%^&?*=+"):
+        #if not (ch.isalnum() or ch in ['_', ':', '.', '-', '>']):
+        if not (ch.isalnum() or ch in "_:.->"):
             a.forward_char()
             break
     
     word = a.get_visible_text(b)
     return word
-
 
 def get_line(piter):    
     a = piter.copy()
@@ -78,22 +56,26 @@ def document_path(document):
     # sometimes starts with a slash
     if path[0] == "/":
         path = path[1:]
+        
+    print(path)
     return path
 
 
-# Return a short reference to a source from its full name
 def truncate_source(source):
+    """
+    Return a short reference to a source from its full name
+    """
     result = ""
     
-    # The first word of the reference is usually the first word of the source
+    #The first word of the reference is usually the first word of the source
     for ch in source:
         if ch.isspace() or ch in [",", ":", "."]:
             break
         else:
             result += ch
     
-    # After that, usually the year of publishing is added. To find that, we look for
-    # 4 consecutive digits that have non-digits on either side
+    #After that, usually the year of publishing is added. To find that, we look for 
+    #4 consecutive digits that have non-digits on either side
     if len(source) >= 4:
         year = ""  
         for idx in range(len(source) - 3):
