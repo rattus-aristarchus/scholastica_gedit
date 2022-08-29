@@ -33,8 +33,8 @@ class ScholasticaPlugin(GObject.Object, Gedit.WindowActivatable):
         logger.info("do_activate")
         
         self.proxy = ServerProxy('http://localhost:9000', 
-                                 allow_none=True)
-                             #    headers=[("TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS", "1")])
+                                 allow_none=True,
+                                 headers=[("TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS", 1)])
         self.listener = Listener(self.window)
         self.listener.start()
         
@@ -168,4 +168,4 @@ class Listener(threading.Thread):
                 logger.error(str(e))
 
         GLib.idle_add(open_file_main_thread)
-        return "done beatch"
+        return ""
