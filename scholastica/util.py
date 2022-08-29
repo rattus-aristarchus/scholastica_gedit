@@ -1,6 +1,8 @@
 from urllib.parse import unquote
 from urllib.parse import urlparse
- 
+import platform
+
+
 def get_word(piter):
     a = piter.copy()
     b = piter.copy()
@@ -19,6 +21,7 @@ def get_word(piter):
     
     word = a.get_visible_text(b)
     return word
+
 
 def get_line(piter):    
     a = piter.copy()
@@ -54,7 +57,7 @@ def document_path(document):
         path = unquote(path)
     # i've got no idea how or why but on windows the path
     # sometimes starts with a slash
-    if path[0] == "/":
+    if path[0] == "/" and platform.system() == "Windows":
         path = path[1:]
         
     print(path)
