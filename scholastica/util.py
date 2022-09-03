@@ -2,7 +2,7 @@ from urllib.parse import unquote
 from urllib.parse import urlparse
 import platform
 import logging
-import conf
+import scholastica.conf as conf
 
 logging.basicConfig(filename=conf.LOGS_FILE,
                     level=logging.DEBUG)

@@ -1,6 +1,6 @@
 from gi.repository import GtkSource, GObject
 import logging
-import conf
+import scholastica.conf as conf
 
 from scholastica.proposal import TagProposal
 import scholastica.util as util
