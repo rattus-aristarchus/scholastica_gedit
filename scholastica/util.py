@@ -1,6 +1,33 @@
 from urllib.parse import unquote
 from urllib.parse import urlparse
 import platform
+import logging
+import conf
+
+logging.basicConfig(filename=conf.LOGS_FILE,
+                    level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+
+def get_phrase(piter):
+    a = piter.copy()
+    b = piter.copy()
+
+    while True:
+        if a.starts_line():
+            break
+
+        a.backward_char()
+        ch = a.get_char()
+
+        if not (ch.isalnum() or ch in "_:.-><\"'$%^&?*=+" or ch.isspace()):
+            a.forward_char()
+            break
+
+    word = a.get_visible_text(b)
+    if word[0].isspace():
+        word = word[1:]
+    return word
 
 
 def get_word(piter):
@@ -14,8 +41,7 @@ def get_word(piter):
         a.backward_char()
         ch = a.get_char()
         
-        #if not (ch.isalnum() or ch in ['_', ':', '.', '-', '>']):
-        if not (ch.isalnum() or ch in "_:.->"):
+        if not (ch.isalnum() or ch in "_:.,-><\"';$%^&?*=+"):
             a.forward_char()
             break
     
@@ -59,8 +85,6 @@ def document_path(document):
     # sometimes starts with a slash
     if path[0] == "/" and platform.system() == "Windows":
         path = path[1:]
-        
-    print(path)
     return path
 
 

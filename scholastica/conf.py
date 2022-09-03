@@ -37,15 +37,6 @@ def end_profiling():
     logger.debug("1")
     stats = pstats.Stats(profile, stream=result)
     stats.sort_stats('cumulative').print_stats()
-    """
-    logger.debug("2")
-    stats = stats.strip_dirs()
-    logger.debug("3")
-    stats = stats.sort_stats(SortKey.CUMULATIVE)
-    logger.debug("4")
-    stats = stats.print_stats()
-    logger.debug("5")
-    """
     if os.path.exists(PROFILE_DUMP):
         os.remove(PROFILE_DUMP)
     with open(PROFILE_DUMP, "w+") as file:
